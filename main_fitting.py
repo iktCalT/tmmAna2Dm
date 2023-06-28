@@ -39,7 +39,7 @@ example_paramaters.add('k_a5', value=0, min=-100, max=100)
 
 Rs = []; R_diff = []
 filename,wl_arr = calculate('parameter3.csv', Rs, 'R', list_results_diff=R_diff, sub_layers=[2,3])
-Rs_arr = np.array(R_diff) + np.random.normal(size=wl_arr.size, scale=0.0005)
+Rs_arr = np.array(R_diff) + np.random.normal(size=wl_arr.size, scale=0.002)
 
 fitting_result = example_model.fit(Rs_arr, example_paramaters, wl=wl_arr, method='powell') 
 print(fitting_result.fit_report())
