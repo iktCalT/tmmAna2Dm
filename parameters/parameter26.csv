@@ -1,0 +1,9 @@
+﻿,min,max,num_of_points,,,,,,,
+Wavelength,300,900,301,,,,,,,
+,layer1,layer2,layer3,layer4,,,,,,
+Layer,G,N2,SiO2film,Si,,,,,,
+ Thickness,6.8,10,100,525000,,,,,,
+ Coherence,c,c,c,i,,,,,,
+,layer_num,f1,e1,gamma1,f2,e2,gamma2,f3,e3,gamma3
+Layer_with_exciton1,,,,,,,,,,
+Layer_with_exciton2,,,,,,,,,,

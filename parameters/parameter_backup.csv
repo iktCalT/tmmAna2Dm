@@ -1,0 +1,9 @@
+﻿,min,max,num_of_points,,,,,,,
+Wavelength,400,700,11,,,,,,,
+,layer1,layer2,layer3,layer4,,,,,,
+Layer,G,N2,,,,,,,,
+ Thickness,0.34,100,100,525000,,,,,,
+ Coherence,c,c,c,i,,,,,,
+,layer_num,f1,e1,gamma1,f2,e2,gamma2,f3,e3,gamma3
+Layer_with_exciton1,1,1.9,2.014,0.029,3.07,2.402,0.14,15.5,2.845,0.26
+Layer_with_exciton2,,,,,,,,,,
