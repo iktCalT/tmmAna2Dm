@@ -11,8 +11,8 @@ def find_intermediate_value (x1,y1,x2,y2,x):
 
 def sellmeier_eq(wl, b1, c1, b2, c2, b3, c3):
     sellmeier_eq_square = 1 + b1/(1-c1/(wl*wl)) + b2/(1-c2/(wl*wl)) + b3/(1-c3/(wl*wl))
-    #sellmeier_eq = np.sqrt(np.absolute(sellmeier_eq_square))  # result is better without square root
-    return sellmeier_eq_square
+    sellmeier_eq = np.sqrt(np.absolute(sellmeier_eq_square))  # result seems to be better without square root
+    return sellmeier_eq
 
 def exciton_dielectric_fun(wl, fx, ex, gammax):
     """
