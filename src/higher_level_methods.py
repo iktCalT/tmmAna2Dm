@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from lmfit import Model, Parameters
 from tmm import inc_tmm
 
 try:
@@ -215,10 +216,18 @@ def generate_file_name(layer_arr, d_arr):
     return filename
 
 
-def replace_refractive_index_of_one_layer(unknown_layer_num, wl_n_2Darr, n_coefficients, k_coefficients):
+def replace_refractive_index_of_one_layer(unknown_layer_num, wl_n_2Darr, n_coefficients, k_coefficients,
+                                          n_gaussian, k_gaussian, 
+                                          n_b1,n_c1,n_b2,n_c2,n_b3,n_c3,
+                                          k_b1,k_c1,k_b2,k_c2,k_b3,k_c3):
     for index in range(0,wl_n_2Darr.shape[0]):
-        n = basic_methods.polynomial_2(wl_n_2Darr[index][0].real,n_coefficients)
-        k = basic_methods.polynomial_2(wl_n_2Darr[index][0].real,k_coefficients)
+        x = wl_n_2Darr[index][0].real
+        n = (basic_methods.polynomial_2(x,n_coefficients)  
+                    +basic_methods.gaussian(x,n_gaussian) 
+                    + basic_methods.sellmeier_eq(n_b1,n_c1,n_b2,n_c2,n_b3,n_c3))
+        k = (basic_methods.polynomial_2(x,k_coefficients) 
+                    +basic_methods.gaussian(x,k_gaussian) 
+                    + basic_methods.sellmeier_eq(k_b1,k_c1,k_b2,k_c2,k_b3,k_c3))
         wl_n_2Darr[index][unknown_layer_num] = n + k*1j
 #test_arr = np.array([[300,   3.37+2.09e+00j, 1.49+3.72133333e-03j,   5.049     +4.29000000e+00j],
 #                    [898,   2.96063796+1.68234429e+00j, 1.4598255 +1.16100000e-03j,   3.6106    +2.15800000e-03j],

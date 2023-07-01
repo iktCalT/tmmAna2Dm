@@ -1,5 +1,7 @@
 import numpy as np
-import matplotlib.pyplot as plt
+import csv
+#import matplotlib.pyplot as plt
+from scipy.signal import convolve2d
 from lmfit import Model, Parameters, report_fit
 
 def find_intermediate_value (x1,y1,x2,y2,x):
@@ -14,7 +16,7 @@ def sellmeier_eq(wl, b1, c1, b2, c2, b3, c3):
 
 def exciton_dielectric_fun(wl, fx, ex, gammax):
     """
-        Kramers-Kronig relations
+        Deduced from Kramers-Kronig relations
         for each wavelength (wl),
         input oscillator strength (fx), exciton energy (Ex), linewidth (gammax) 
         it will calculate the xth exciton arribution to dielectric function (epsilonx) 
@@ -83,7 +85,7 @@ def fit_n_k_exceeding_boundary (wl_arr,n_arr,type,range=300):
             result = sellmeier_model.fit(n_arr_cut, sellmeier_para_init, wl=wl_arr_cut)
             for para in result.params.items():
                 sellmeier_para.append(para[1].value)
-            print("Fitting finish")
+            print("Fitting finished")
         except ValueError:
             print("ValueError in fitting real prat")   
          
@@ -96,6 +98,37 @@ def fit_n_k_exceeding_boundary (wl_arr,n_arr,type,range=300):
 #plt.plot(wl_arr, n_arr_fit, label='Fit')
 #plt.legend()
 #plt.show()
+
+def segment_fitting (step, wl_arr, n_arr, model, parameters, method = 'leastsq'):
+    bins = np.arange(min(wl_arr), max(wl_arr), step)
+    fitted_n = np.array([])
+    for i in range(0,len(bins)):
+        isinit = int(i==0)
+        isend = int(i == len(bins) - 1)
+        start = bins[i]
+        end = bins[i+1-isend] 
+        if isend: end = max(wl_arr) + 1
+        indexes = (wl_arr >= start - (1-isinit+4*isend)* step/4) & (wl_arr < end + (1-isend)* step/4)
+        seg_wl_arr = wl_arr[indexes]
+        seg_n_arr = n_arr[indexes]
+        fitting_result = model.fit(seg_n_arr, parameters, wl=seg_wl_arr)
+        print(fitting_result.fit_report()) 
+        indexes2 = (seg_wl_arr >= start) & (seg_wl_arr < end)
+        fitted_n = np.append(fitted_n, fitting_result.best_fit[indexes2])
+        
+        #write result to txt files
+        data = [start, end]
+        for name in fitting_result.var_names:
+            data.append(fitting_result.values[name])
+        try:
+            with open('./fitted_data/fitting_parameters.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(data)
+        except:
+            with open('../fitted_data/fitting_parameters.csv', 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(data)            
+    return fitted_n
 
 def polynomial_1(x, highest_power, a0=0, a1=0, a2=0, a3=0, a4=0, a5=0, 
                a6=0, a7=0, a8=0, a9=0, a10=0, a11=0, a12=0, a13=0, a14=0, a15=0):
@@ -134,6 +167,22 @@ def polynomial_2(x, coefficients=[0]):
     return y
 #polynomial_2(3,[1,2,3])
 
+def polynomial_3(x, *args):
+    y = .0
+    for i in range(len(args)):
+        y += args[i] * (x ** i)
+    return y   
+
+def gaussian(x, coefficients=[0,0,1]):
+    """
+    Args:
+        x (folat): variable
+        coefficients (list, optional): height, center, standard deviation. Defaults to [0,0,0].
+    """
+    x = .0
+    y = coefficients[0]*np.exp(-1./2 * ((x-coefficients[1])/coefficients[2])**2)
+    return y
+
 def pop_zero(list_to_pop):
     for i in reversed(range(0,len(list_to_pop))):
         if (list_to_pop[i]):
@@ -142,3 +191,30 @@ def pop_zero(list_to_pop):
             list_to_pop.pop(-1)           
 #list_to_pop = [3,4,1,0,0,0]
 #pop_zero(list_to_pop)
+
+def find_opposite_neighbors(array,radius=2):
+    """Find the elements has opposite neighbor(s)
+        But boundary elements of return array are fixed to 0.
+    Args:
+        array (2Darray): _description_
+
+    Returns:
+        2Darray: mapping of elements with opposite neighbor(s). 
+    """
+    kernel = np.ones((2*radius+1,2*radius-1))       #np.array([[1, 1, 1],
+                                                    #          [1, 1, 1],
+                                                    #          [1, 1, 1]])
+    a = array * convolve2d(array, kernel, mode='same')
+    b = a[1:-1,1:-1]
+    mapping = np.zeros_like(a)
+    opposite_neighbor_indices = np.argwhere(b < 9)
+    for index in opposite_neighbor_indices:
+        mapping[index[0]+1][index[1]+1] = 1
+    return mapping
+
+def sum_neighbors(array,radius=2):
+    kernel = kernel = np.ones((2*radius-1,2*radius-1))
+    return convolve2d(array, kernel, mode='same')
+
+#def local_maxium(array,radius=1):
+    

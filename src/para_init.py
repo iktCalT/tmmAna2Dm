@@ -21,13 +21,15 @@ def generate_wl_n_2Darr(wl_arr,layer_arr,ex_layer=[],exciton_para_arr=[]):
             n_list_layer = higher_level_methods.n_list_of_specific_layer(layer,wl_arr,exciton_para_of_layer)
         else: 
             n_list_layer = higher_level_methods.n_list_of_specific_layer(layer,wl_arr)
+        np.savetxt('./data/others/'+layer+'_generated.csv', 
+                    [points for points in zip(wl_arr, n_list_layer)], delimiter=',', fmt='%s')
         wl_n_list.append(n_list_layer)
     wl_n_arr = np.array(wl_n_list)
     wl_n_arr = wl_n_arr.T
     #n_arr = wl_n_arr[:,1:]
     return wl_n_arr
 
-def get_para_from_file(para_filename):
+def get_para_from_file(para_filename, wl=0):
     try:
         f = pd.read_csv('./parameters/'+para_filename,encoding='utf-8')
     except (FileNotFoundError):
@@ -37,11 +39,13 @@ def get_para_from_file(para_filename):
     para_arr = para_arr[:,1:]
 
     var_arr = f.columns.values
-
-    wl_min = float(para_arr[0][0])
-    wl_max = float(para_arr[0][1])
-    wl_num = int(para_arr[0][2])
-    wl_arr = np.linspace(wl_min,wl_max,wl_num)
+    if wl==0:
+        wl_min = float(para_arr[0][0])
+        wl_max = float(para_arr[0][1])
+        wl_num = int(para_arr[0][2])
+        wl_arr = np.linspace(wl_min,wl_max,wl_num)
+    else:
+        wl_arr = np.array([wl])
 
     layer_arr = para_arr[2]
     layer_arr = layer_arr[~pd.isnull(layer_arr)]
