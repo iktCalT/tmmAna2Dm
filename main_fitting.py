@@ -1,3 +1,6 @@
+# Please ignore this file. I suddenly found that fitting was impossible with only reflectance data at normal incidence.
+# Beacuse one reflectance value corresponds to a set of ns and ks (n and k refer to the real and imaginary parts of refractive index). test_tmm.py gives some examples.
+
 import numpy as np
 import matplotlib.pyplot as plt
 from lmfit import Model, Parameters
